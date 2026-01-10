@@ -18,8 +18,17 @@ def printData(data, rows):
 
 dataFilePath = 'Resources/Hotel_Reservations.csv'
 data = getData(dataFilePath)
-# printData(data, 5)
 
-dataAnalysis.analyzeData(data)
+# Podstawowa analiza danych
+#dataAnalysis.analyzeData(data)
 
+# Analiza wartości odstających metodą kwartylową
+# dataAnalysis.startIQRAnalysis(data)
+
+# Zależności między zmiennymi
+# Współczynnik korelacji Pearsona
+# dataAnalysis.correlationCoefficient(data)
+# dataAnalysis.plotScatterDiagram(data)
+
+# Przetwarzanie danych
 dataProcessing.processData(data)
