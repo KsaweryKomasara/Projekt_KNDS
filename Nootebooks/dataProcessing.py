@@ -11,14 +11,19 @@ from sklearn.metrics import mean_squared_error, r2_score
 
 
 def processData(data):
+
     print ("Processing data...")
+
     data.isna().sum()
     columnName = "booking_status"
     X_train, X_test, y_train, y_test, num_features, cat_features = splitData(data,columnName)
-    setTrainngDataSet(X_train, X_test, num_features, cat_features)
+    X_train_processed, X_test_processed = setTrainngDataSet(X_train, X_test, num_features, cat_features)
+
+    return X_train_processed, X_test_processed, y_train, y_test
 
 
 def splitData(data, columnName):
+    
     print("Splitting data...")
 
     # Rozdzielenie zbiorów pod kątem statusu rezerwacji
@@ -81,4 +86,6 @@ def setTrainngDataSet(X_train, X_test, num_features, cat_features):
     X_test_processed = pd.DataFrame(data=data_pipeline.transform(X_test).toarray(), columns = features_names)
 
     print("Processed training dataset: ", X_train_processed.head)
+
+    return X_train_processed, X_test_processed
 

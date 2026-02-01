@@ -1,3 +1,7 @@
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
 def analyzeData(data):
 
     dataType = data.dtypes
@@ -36,17 +40,47 @@ def correlationCoefficient(data):
     for item in correlatioVector:
         print(item)
 
-def plotScatterDiagram(data):
-    import matplotlib.pyplot as plt
-    import seaborn as sns
+def plotHist(data):
+    columns = data.select_dtypes(include=['float64', 'int64']).columns
+    for column in columns:
+        plt.figure(figsize=(8, 6))
+        sns.histplot(data[column], kde=True)
+        plt.title(f'Rozkład zmiennej {column}')
+        plt.xlabel(column)
+        plt.ylabel('Liczba wystąpień')
+        plt.show()
 
-    numeric_columns = data.select_dtypes(include=['float64', 'int64']).columns
-    for i in range(len(numeric_columns)):
-        for j in range(i + 1, len(numeric_columns)):
+def plotCounts(data):
+    columns = data.select_dtypes(include=['object', 'category']).columns
+    columns = columns.drop("Booking_ID", errors='ignore')
+    
+    for column in columns:
+        plt.figure(figsize=(8, 6))
+        sns.countplot(data=data, x=column)
+        plt.title(f'Wykres liczności dla zmiennej {column}')
+        plt.xlabel('Liczba wystąpień')
+        plt.ylabel(column)
+        plt.show()
+
+def plotScatterDiagrams(data):
+    columns = data.select_dtypes(include=['float64', 'int64']).columns
+    for i in range(len(columns)):
+        for j in range(i + 1, len(columns)):
             plt.figure(figsize=(8, 6))
-            sns.scatterplot(x=data[numeric_columns[i]], y=data[numeric_columns[j]])
-            plt.title(f'Scatter Plot between {numeric_columns[i]} and {numeric_columns[j]}')
-            plt.xlabel(numeric_columns[i])
-            plt.ylabel(numeric_columns[j])
+            sns.scatterplot(x=data[columns[i]], y=data[columns[j]])
+            plt.title(f'Scatter Plot between {columns[i]} and {columns[j]}')
+            plt.xlabel(columns[i])
+            plt.ylabel(columns[j])
             plt.show()
 
+def plotBoxDiagramsForTargetVar(data):
+    target_column = data.columns[-1]
+    print(f"Target variable for box plots: {target_column}")
+    numeric_columns = data.select_dtypes(include=['float64', 'int64'])
+    for column in numeric_columns:
+        plt.figure(figsize=(8, 6))
+        sns.boxplot(x=data[target_column], y=data[column])
+        plt.title(f'Box Plot of {column} by {target_column}')
+        plt.xlabel(target_column)
+        plt.ylabel(column)
+        plt.show()
