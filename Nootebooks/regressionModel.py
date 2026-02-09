@@ -25,9 +25,7 @@ def linearRegressionTrain(X_train_processed, X_test_processed, y_train, y_test):
 
     print(f"Linear Regression - Mean Squared Error, Train: {mse_train:.2f}, Test: {mse_test:.2f}")
     print(f"Linear Regression - R^2 Score, Train: {r2_train:.2f}, Test: {r2_test:.2f}")
-
-    return model
-
+    
 def lassoRegressionTrain(X_train_processed, X_test_processed, y_train, y_test):
 
     print("Training Lasso Regression model...")

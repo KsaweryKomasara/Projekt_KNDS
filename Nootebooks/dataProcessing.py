@@ -16,6 +16,11 @@ def processData(data):
 
     data.isna().sum()
     columnName = "booking_status"
+
+    # Zmiana typu danych dla kolumny "booking_status" na numeryczny (0 i 1)
+
+    data[columnName] = data[columnName].map({'Not_Canceled': 0, 'Canceled': 1})
+
     X_train, X_test, y_train, y_test, num_features, cat_features = splitData(data,columnName)
     X_train_processed, X_test_processed = setTrainngDataSet(X_train, X_test, num_features, cat_features)
 
@@ -78,14 +83,15 @@ def setTrainngDataSet(X_train, X_test, num_features, cat_features):
 
     features_names = (
         pd.Index(data_pipeline.named_steps['preprocessor'].get_feature_names_out())
-        .str.replace('num__', '', regex=False)
-        .str.replace('cat__', '', regex=False)
+        .str.replace('num__', "", regex=False)
+        .str.replace('cat__', "", regex=False)
     )
 
     X_train_processed = pd.DataFrame(data=data_pipeline.transform(X_train).toarray(), columns = features_names)
     X_test_processed = pd.DataFrame(data=data_pipeline.transform(X_test).toarray(), columns = features_names)
 
-    print("Processed training dataset: ", X_train_processed.head)
+    print("Processed training dataset: ") 
+    print(X_train_processed.head())
 
-    return X_train_processed, X_test_processed
+    return X_train_processed, X_test_processed,
 
