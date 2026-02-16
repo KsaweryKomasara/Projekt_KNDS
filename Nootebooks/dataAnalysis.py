@@ -84,3 +84,11 @@ def plotBoxDiagramsForTargetVar(data):
         plt.xlabel(target_column)
         plt.ylabel(column)
         plt.show()
+
+def plotHeatmap(data):
+    numeric_columns = data.select_dtypes(include=['float64', 'int64']).columns
+    correlation_matrix = data[numeric_columns].corr()
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
+    plt.title('Macierz korelacji')
+    plt.show()

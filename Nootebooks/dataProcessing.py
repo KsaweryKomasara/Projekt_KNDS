@@ -87,8 +87,8 @@ def setTrainngDataSet(X_train, X_test, num_features, cat_features):
         .str.replace('cat__', "", regex=False)
     )
 
-    X_train_processed = pd.DataFrame(data=data_pipeline.transform(X_train).toarray(), columns = features_names)
-    X_test_processed = pd.DataFrame(data=data_pipeline.transform(X_test).toarray(), columns = features_names)
+    X_train_processed = pd.DataFrame(data=data_pipeline.transform(X_train), columns = features_names)
+    X_test_processed = pd.DataFrame(data=data_pipeline.transform(X_test), columns = features_names)
 
     print("Processed training dataset: ") 
     print(X_train_processed.head())
