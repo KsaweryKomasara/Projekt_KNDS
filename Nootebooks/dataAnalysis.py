@@ -85,10 +85,35 @@ def plotBoxDiagramsForTargetVar(data):
         plt.ylabel(column)
         plt.show()
 
-def plotHeatmap(data):
+def plotHeatmap(data): # Ta funkcja tworzy macierz korelacji dla zmiennych numerycznych i wizualizuje ją za pomocą heatmapy.
     numeric_columns = data.select_dtypes(include=['float64', 'int64']).columns
     correlation_matrix = data[numeric_columns].corr()
     plt.figure(figsize=(12, 10))
     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
     plt.title('Macierz korelacji')
     plt.show()
+
+def plotCorrelationWithTarget(data):
+    df = data.copy()
+    df.drop("Booking_ID", axis=1, inplace=True, errors='ignore')
+    df['booking_status'] = df['booking_status'].map({'Not_Canceled': 0, 'Canceled': 1})
+    print (df.head())
+    numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns
+    correlation_matrix = df[numeric_columns].corr()
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(correlation_matrix['booking_status'].to_frame(), annot=True, cmap='coolwarm', linewidths=0.5)
+    plt.title(f'Macierz korelacji ze zmienną celu: booking_status')
+    plt.show()
+
+def plotBarCharts(data):
+    columns = data.select_dtypes(include=['object', 'category']).columns
+    columns = columns.drop("Booking_ID", errors='ignore')
+    
+    for column in columns:
+        plt.figure(figsize=(8, 6))
+        sns.countplot(data=data, x=column)
+        plt.title(f'Wykres słupkowy dla zmiennej {column}')
+        plt.xlabel(column)
+        plt.ylabel('Liczba wystąpień')
+        plt.xticks(rotation=45)
+        plt.show()
