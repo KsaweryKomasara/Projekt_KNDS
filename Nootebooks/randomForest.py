@@ -31,7 +31,7 @@ def FeaturesImportance(model,X_train):
     std = np.std([tree.feature_importances_ for tree in model.estimators_], axis=0)
     #Coefficients of Variations
     cv = std/imp
-    cv = [t<0.2 for t in cv]
+    cv = [t<0.25 for t in cv]
 
     fig, ax = plt.subplots()
     forest_imp.plot.bar(yerr=std, ax=ax)
