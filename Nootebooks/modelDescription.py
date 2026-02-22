@@ -8,19 +8,24 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 from matplotlib.colors import ListedColormap
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.inspection import DecisionBoundaryDisplay
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.dummy import DummyClassifier
+
 
 def modelBenchmark(model,X_test,y_test):
     y_pred = model.predict(X_test)
     print(f"Accuracy of the model:")
     print(classification_report(y_test,y_pred))
 
-def FeaturesImportance(model,X_train):
+def FeaturesImportance(model,X_train,threshold=0.2):
     imp = model.feature_importances_
     forest_imp = pd.Series(imp, index=list(X_train.columns))
     std = np.std([tree.feature_importances_ for tree in model.estimators_], axis=0)
     #Coefficients of Variations
-    cv = std/imp
-    cv = [t<0.2 for t in cv]
+    cv = np.divide(std, imp, out=np.zeros_like(std), where=imp!=0)
+    cv = [t<threshold for t in cv]
 
     fig, ax = plt.subplots()
     forest_imp.plot.bar(yerr=std, ax=ax)
@@ -36,4 +41,46 @@ def confiusionMatrix(model,X_test,y_test):
     disp = ConfusionMatrixDisplay(confusion_matrix=cm)
     disp.plot(cmap=plt.cm.Reds)
     plt.title('Macierz pomyłek')
+    plt.show()
+
+def DecisionBoundryWithJitter(model, X, y, jitter_amount=0.2):
+    y_array = y.values
+    X_array = X.values
+
+    plt.figure(figsize=(10, 6))
+    ax = plt.gca() 
+
+    disp = DecisionBoundaryDisplay.from_estimator(
+        model, X, 
+        cmap=plt.cm.Paired, 
+        response_method="predict", 
+        ax=ax,
+        xlabel=X.columns[0],
+        ylabel=X.columns[1],
+        alpha=0  
+    )
+
+    X_jittered = X_array.copy().astype(float)
+    X_jittered[:, 0] += np.random.normal(0, jitter_amount, size=X_array.shape[0])
+    X_jittered[:, 1] += np.random.normal(0, jitter_amount, size=X_array.shape[0])
+
+    unique_classes = np.unique(y_array)
+    
+    plot_colors = ["blue", "red"]
+
+    for class_val, color in zip(unique_classes, plot_colors):
+        idx = np.where(y_array == class_val)[0]
+        
+        ax.scatter(
+            X_jittered[idx, 0], 
+            X_jittered[idx, 1], 
+            c=color, 
+            edgecolor="black", 
+            s=25, 
+            label=f"Class {class_val}"
+        )
+
+    plt.title("Decision Boundary")
+    plt.legend()
+    plt.axis("tight")
     plt.show()
