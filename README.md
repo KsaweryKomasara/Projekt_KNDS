@@ -17,7 +17,9 @@ Brak wartości pustych
 
 Do zastanowienia: Wg IRQAnalises występuje sporo wartości odstających
 
-Do zastanowienia: Wykres korelacji zmiennych ze zmienną celu
+Do zastanowienia: Wykres korelacji zmiennych ze zmienną celu (Ważny wykres)
+
+Wykres ze zobrazowaniem liczby wystąpień rezerwacji dla konkretnych cen pokojów hotelowych pokazał, że istnieje ponad 500 rezerwacji ze średnią ceną pokoju równą 0. Wynika to z dwóch czynników. Cena za pokój jest równa zero kiedy typ gościa hotelowego (zmienna market_segment_type) przyjumuje wartość "Complimetary", co oznacza, że rezerwacja nie jest typową rezerwacją i cena za pokój wynosi 0. Cena za pokój wyniesie 0 również gdy klient nie podał ani liczby nocy w tygodniu roboczym, ani liczby nocy weekendowych.
 
 2. Przetwarzanie danych
 
