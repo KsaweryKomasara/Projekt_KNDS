@@ -35,7 +35,7 @@ def FeaturesImportance(model,X_train,threshold=0.2):
     print(cv)
     return cv
 
-def confiusionMatrix(model,X_test,y_test):
+def confusionMatrix(model,X_test,y_test):
     y_pred = model.predict(X_test)
     cm = confusion_matrix(y_test,y_pred)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm)

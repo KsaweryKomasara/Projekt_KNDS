@@ -97,7 +97,6 @@ def plotCorrelationWithTarget(data):
     df = data.copy()
     df.drop("Booking_ID", axis=1, inplace=True, errors='ignore')
     df['booking_status'] = df['booking_status'].map({'Not_Canceled': 0, 'Canceled': 1})
-    print (df.head())
     numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns
     correlation_matrix = df[numeric_columns].corr()
     plt.figure(figsize=(12, 10))
