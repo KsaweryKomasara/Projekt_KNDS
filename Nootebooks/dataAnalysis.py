@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
 
 
 def analyzeData(data):
@@ -105,14 +106,66 @@ def plotCorrelationWithTarget(data):
     plt.show()
 
 def plotBarCharts(data):
-    columns = data.select_dtypes(include=['object', 'category']).columns
+
+    df = data.copy()
+
+    columns = df.columns
     columns = columns.drop("Booking_ID", errors='ignore')
-    
-    for column in columns:
-        plt.figure(figsize=(8, 6))
-        sns.countplot(data=data, x=column)
-        plt.title(f'Wykres słupkowy dla zmiennej {column}')
-        plt.xlabel(column)
+    columns = columns.drop("booking_status", errors='ignore')
+    columns = columns.drop("arrival_date", errors='ignore')
+    columns = columns.drop("no_of_previous_bookings_not_canceled", errors='ignore')
+    columns = columns.drop("lead_time", errors='ignore')
+    columns = columns.drop("avg_price_per_room", errors='ignore')
+
+
+    counts = df.groupby(['no_of_children', 'booking_status']).size().unstack()
+    cancel_rates = (counts['Canceled'] / counts.sum(axis=1) * 100).fillna(0)
+
+    for columnName in columns:
+
+        counts = df.groupby([columnName, 'booking_status']).size().unstack()
+        cancel_rates = (counts['Canceled'] / counts.sum(axis=1) * 100).fillna(0)
+
+        plt.figure(figsize=(16, 6))
+        ax = sns.countplot(data=df, x=columnName, hue='booking_status')
+        plt.title(f'Wykres liczności dla zmiennej {columnName} z podziałem na booking_status')
+        plt.xlabel(columnName)
         plt.ylabel('Liczba wystąpień')
-        plt.xticks(rotation=45)
+        plt.legend(title='Booking Status', loc='upper right')
+
+        for container in ax.containers:
+            ax.bar_label(container)
+
+        for i, rate in enumerate(cancel_rates):
+           max_height = max([p.get_height() for p in ax.patches if abs(p.get_x() + p.get_width()/2 - i) < 0.5])
+           ax.text(i, max_height + 500, f'{rate:.1f}% cancel', ha='center', fontweight='bold', color='red')
+
+        plt.show()
+
+def plotDenseBarCharts(data):
+    df = data.copy()
+    df["lead_time_range"] = pd.cut(df["lead_time"], bins=[-1, 30, 60, 90, 120, float('inf')], labels=['0-30', '31-60', '61-90', '91-120', '120+'])
+    df["avg_price_per_room_range"] = pd.cut(df["avg_price_per_room"], bins=[-1, 50, 100, 150, 200, float('inf')], labels=['0-50', '51-100', '101-150', '151-200', '200+'])
+
+    columns = df[["lead_time_range", "avg_price_per_room_range"]]
+
+    for columnName in columns:
+
+        counts = df.groupby([columnName, 'booking_status']).size().unstack()
+        cancel_rates = (counts['Canceled'] / counts.sum(axis=1) * 100).fillna(0)
+
+        plt.figure(figsize=(12, 6))
+        ax = sns.countplot(data=df, x=columnName, hue='booking_status')
+        plt.title(f'Wykres liczności dla zmiennej {columnName} z podziałem na booking_status')
+        plt.xlabel(columnName)
+        plt.ylabel('Liczba wystąpień')
+        plt.legend(title='Booking Status', loc='upper right')
+
+        for container in ax.containers:
+            ax.bar_label(container)
+
+        for i, rate in enumerate(cancel_rates):
+           max_height = max([p.get_height() for p in ax.patches if abs(p.get_x() + p.get_width()/2 - i) < 0.5])
+           ax.text(i, max_height + 500, f'{rate:.1f}% cancel', ha='center', fontweight='bold', color='red')
+
         plt.show()
