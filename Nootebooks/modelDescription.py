@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, roc_auc_score
 from sklearn.metrics import classification_report
 from matplotlib.colors import ListedColormap
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
@@ -42,6 +42,10 @@ def confusionMatrix(model,X_test,y_test):
     disp.plot(cmap=plt.cm.Reds)
     plt.title('Macierz pomyłek')
     plt.show()
+
+def show_roc_auc(y_test, y_pred):
+    roc_auc = roc_auc_score(y_test, y_pred)
+    print(f"ROC AUC: {roc_auc:.4f}")
 
 def DecisionBoundryWithJitter(model, X, y, jitter_amount=0.2):
     y_array = y.values
