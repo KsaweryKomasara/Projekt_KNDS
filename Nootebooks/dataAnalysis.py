@@ -74,16 +74,26 @@ def plotScatterDiagrams(data):
             plt.ylabel(columns[j])
             plt.show()
 
-def plotBoxDiagramsForTargetVar(data):
+def plotDiagramsForTargetVar(data, unique_val_threshold=10, dominance_threshold=0.8):
     target_column = data.columns[-1]
-    print(f"Target variable for box plots: {target_column}")
+    print(f"Zmienna celu dla wykresów: {target_column}")
+    
     numeric_columns = data.select_dtypes(include=['float64', 'int64'])
+    
     for column in numeric_columns:
         plt.figure(figsize=(8, 6))
-        sns.boxplot(x=data[target_column], y=data[column])
-        plt.title(f'Box Plot of {column} by {target_column}')
-        plt.xlabel(target_column)
-        plt.ylabel(column)
+        most_frequent_pct = data[column].value_counts(normalize=True).iloc[0]
+        if data[column].nunique() <= unique_val_threshold:
+            sns.countplot(data=data, x=column, hue=target_column)
+            plt.title(f'Rozkład: {column} w zależności od {target_column}')
+            plt.ylabel('Liczba wystąpień')
+            
+        elif most_frequent_pct > dominance_threshold:
+            sns.stripplot(data=data, x=target_column, y=column, alpha=0.5, jitter=True)
+            plt.title(f'Rozkład punktowy (dominanta {most_frequent_pct*100:.1f}%): {column} wg {target_column}')
+        else:
+            sns.boxplot(data=data, x=target_column, y=column)
+            plt.title(f'Wykres pudełkowy: {column} wg {target_column}')
         plt.show()
 
 def plotHeatmap(data): # Ta funkcja tworzy macierz korelacji dla zmiennych numerycznych i wizualizuje ją za pomocą heatmapy.

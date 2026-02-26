@@ -16,8 +16,8 @@ from sklearn.dummy import DummyClassifier
 def adaBoostTraining(X_train, y_train):
 
     print("inicializing AdaBoostClassifier")
-    ab = AdaBoostClassifier()
-
+    base_tree = DecisionTreeClassifier(max_depth=2, random_state=42)
+    ab = AdaBoostClassifier(estimator=base_tree, n_estimators=220, random_state=42)
     print("Training...")
     ab.fit(X_train,y_train)
 
@@ -32,7 +32,7 @@ def avaBoostConvergence(X_train,y_train,X_test,y_test):
 
     weak_learner=DecisionTreeClassifier(max_depth=1)
     dummy = DummyClassifier(strategy="most_frequent")
-    n_estimators = 400
+    n_estimators = 600
 
     weak_learners_misclassification_error = missclassificationError(
     y_test, weak_learner.fit(X_train, y_train).predict(X_test))
