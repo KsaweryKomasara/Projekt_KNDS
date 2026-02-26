@@ -22,9 +22,27 @@ def processData(data):
     data[columnName] = data[columnName].map({'Not_Canceled': 0, 'Canceled': 1})
 
     X_train, X_test, y_train, y_test, num_features, cat_features = splitData(data,columnName)
-    X_train_processed, X_test_processed = setTrainngDataSet(X_train, X_test, num_features, cat_features)
 
-    return X_train_processed, X_test_processed, y_train, y_test
+    # Dodanie zbioru walidacyjnego z danych treningowych
+    
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=2/9, random_state=123, stratify=y_train)
+
+    data_pipeline = setPipeline(X_train, X_test, num_features, cat_features)
+
+    features_names = (
+        pd.Index(data_pipeline.named_steps['preprocessor'].get_feature_names_out())
+        .str.replace('num__', "", regex=False)
+        .str.replace('cat__', "", regex=False)
+    )
+
+    X_train_processed = pd.DataFrame(data=data_pipeline.transform(X_train), columns = features_names)
+    X_test_processed = pd.DataFrame(data=data_pipeline.transform(X_test), columns = features_names)
+    X_val_processed = pd.DataFrame(data=data_pipeline.transform(X_val), columns = features_names)
+
+    print("Processed training dataset: ") 
+    print(X_train_processed.head())
+
+    return X_train_processed, X_test_processed, X_val_processed, y_train, y_test, y_val
 
 
 def splitData(data, columnName):
@@ -50,22 +68,24 @@ def splitData(data, columnName):
     return X_train, X_test, y_train, y_test, num_features, cat_features
 
 
-def setTrainngDataSet(X_train, X_test, num_features, cat_features):
+def setPipeline(X_train, X_test, num_features, cat_features):
     
-    # Pipeline dla cech numerycznych (Bez zmian)
+    # Pipeline dla cech numerycznych
+
     num_pipeline = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='median')),
         ('scaler', StandardScaler())
     ])
 
     # Pipeline dla cech kategorycznych
+
     cat_pipeline = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='most_frequent')),
-        # ### ZMIANA 4: Podmieniamy OneHotEncoder na TargetEncoder
-        ('target_encoder', ce.TargetEncoder()) 
+        ('onehot', OneHotEncoder(handle_unknown='ignore'))
     ])
 
-    # Łączenie pipeline'ów (Bez zmian)
+    # Łączenie pipeline'ów
+
     preprocessor = ColumnTransformer(transformers=[
         ('num', num_pipeline, num_features),
         ('cat', cat_pipeline, cat_features)
@@ -75,22 +95,11 @@ def setTrainngDataSet(X_train, X_test, num_features, cat_features):
         ('preprocessor', preprocessor)
     ])
 
-    # ### ZMIANA 5: Target Encoder MUSI widzieć y_train, żeby policzyć prawdopodobieństwa!
-    data_pipeline.fit(X_train, y_train)
+    # Dostawienie przetworzonych danych do danych treningowych
 
-    features_names = (
-        pd.Index(data_pipeline.named_steps['preprocessor'].get_feature_names_out())
-        .str.replace('num__', "", regex=False)
-        .str.replace('cat__', "", regex=False)
-    )
+    data_pipeline.fit(X_train)
 
-    X_train_processed = pd.DataFrame(data=data_pipeline.transform(X_train), columns = features_names)
-    X_test_processed = pd.DataFrame(data=data_pipeline.transform(X_test), columns = features_names)
-
-    print("Processed training dataset: ") 
-    print(X_train_processed.head())
-
-    return X_train_processed, X_test_processed,
+    return data_pipeline
 
 import pandas as pd
 import numpy as np
