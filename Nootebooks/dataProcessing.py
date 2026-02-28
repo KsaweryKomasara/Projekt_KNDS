@@ -1,4 +1,5 @@
 import pandas as pd
+# import category_encoders as ce
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
@@ -7,7 +8,6 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.metrics import mean_squared_error, r2_score
-import category_encoders as ce
 
 
 def processData(data):

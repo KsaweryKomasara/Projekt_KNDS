@@ -6,6 +6,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from matplotlib.colors import ListedColormap
+from sklearn.model_selection import GridSearchCV
 
 def logisticRegressionTrain(X_train, X_test, y_train, y_test):
 
@@ -18,6 +19,30 @@ def logisticRegressionTrain(X_train, X_test, y_train, y_test):
     print("Intercept of the Logistic Regression model:", model.intercept_) # Wyraz wolny modelu
 
     return model
+
+def conductHPO(X_train, y_train):
+
+    print("Conducting Hyperparameter Optimization for Logistic Regression...")
+
+    param_grid = [
+        {
+            'C': [0.01, 0.1, 1, 10, 100],
+            'solver': ['lbfgs'],
+            'penalty': ['l2'] # L2 nie jest obsługiwane przez solver 'lbfgs', dlatego ograniczamy się do L2 dla tego solvera
+        },
+        {
+            'C': [0.01, 0.1, 1, 10, 100],
+            'solver': ['liblinear'],
+            'penalty': ["l1", "l2"]
+        }
+    ]
+
+    grid_search = GridSearchCV(estimator=LogisticRegression(), param_grid=param_grid, cv=5)
+    grid_search.fit(X_train, y_train)
+
+    print("Best Hyperparameters for Logistic Regression:", grid_search.best_params_)
+
+    return grid_search.best_estimator_
 
 
 def plot_decision_boundary(X, y, model, title): # To jest przydatna funckja do wizualizacji granic decyzyjnych modeli klasyfikacyjnych
