@@ -1,46 +1,93 @@
 # Projekt_KNDS
+
 Projekt realizowany w ramach koła naukowego Data Science
+
 Autorzy: Ksawery Komasara, Mateusz Marcinkowski, Jakub Gronkiewicz
 
-Kluczowe wnioski, najważniejsze decyzje ze wszystkich etapów, wykresy, tabele porównujące jakość modeli.
+Celem projektu jest stworzenie narzędzia, które na podstawie zbioru danych (rezerwacji hotelowych) określi czy dana rezerwacja zostanie odwołana.
 
-1. Eksproracyjna analiza danych
+Poniżej opisano kluczowe wnioski, najważniejsze decyzje ze wszystkich etapów, wykresy, tabele porównujące jakość modeli.
 
-Zmienna celu: booking_status
-Zmienna celu przyjmuje dwie wartości: Canceled / Not_canceled
+## Eksproracyjna analiza danych
 
-Typy danych: object, int64, float64
+Zbiór analizowanych danych - Hotel_Reservations.csv -  można znaleźć w folderze Recources
 
-Brak duplikatów
+### Informacje wyciągnięte na podstawie zbioru danych 
 
-Brak wartości pustych
+* Zmienna celu: booking_status
+* Zmienna celu przyjmuje dwie wartości: Canceled / Not_canceled
 
-Do zastanowienia: Wg IRQAnalises występuje sporo wartości odstających
+* Typy danych: object, int64, float64
 
-Do zastanowienia: Wykres korelacji zmiennych ze zmienną celu (Ważny wykres)
+* Brak duplikatów
 
-Wykres ze zobrazowaniem liczby wystąpień rezerwacji dla konkretnych cen pokojów hotelowych pokazał, że istnieje ponad 500 rezerwacji ze średnią ceną pokoju równą 0. Wynika to z dwóch czynników. Cena za pokój jest równa zero kiedy typ gościa hotelowego (zmienna market_segment_type) przyjumuje wartość "Complimetary", co oznacza, że rezerwacja nie jest typową rezerwacją i cena za pokój wynosi 0. Cena za pokój wyniesie 0 również gdy klient nie podał ani liczby nocy w tygodniu roboczym, ani liczby nocy weekendowych.
+* Brak wartości pustych
 
-2. Przetwarzanie danych
+* Wsytępują wartości odstające
 
-Mapowanie kategorycznej zmiennej celu: Canceled - 1, Not_canceled - 0
+* Do zastanowienia: Wykres korelacji zmiennych ze zmienną celu (Ważny wykres)
 
-Po wykonaniu preprocessingu w danych było aż 30 tysięcy kolumn. Macierz zredukowano do 30 kolumn po dropnięciu kolumny Booking_ID.
+### Wnioski i spostrzeżenia
 
-3. Trening i ewaluacja modeli
+* Zmienną celu należy poddać mapowaniu
 
-Wykorzystano 4 modele: regresję logistyczną, drzewo decyzyjne, random forest oraz adaBoost
+* Eliminacja wartości odstających
 
-4. Intrepretacja modelu
+* Najważniejsze zmienne - avg_price_per_room / lead_time
 
-Regresja logistyczna
+* Wykres ze zobrazowaniem liczby wystąpień rezerwacji dla konkretnych cen pokojów hotelowych pokazał, że istnieje ponad 500 rezerwacji ze średnią ceną pokoju równą 0. Wynika to z dwóch czynników. Cena za pokój jest równa zero kiedy typ gościa hotelowego (zmienna market_segment_type) przyjumuje wartość "Complimetary", co oznacza, że rezerwacja nie jest typową rezerwacją i cena za pokój wynosi 0. Cena za pokój wyniesie 0 również gdy klient nie podał ani liczby nocy w tygodniu roboczym, ani liczby nocy weekendowych.
 
-Drzewo decyzyjne
+## Przetwarzanie danych
 
-Random forest
+### Przygotowanie danych do treningu
 
-AdaBoost
+* Mapowanie kategorycznej zmiennej celu: Canceled - 1, Not_canceled - 0
 
-5. Podsumowanie
+* Eliminacja cechy id rezerwacji - 'Booking_ID'
+
+* Eliminacja outlierów w procesie preprocessingu
+
+## Trening i ewaluacja modeli
+
+Wykorzystano 5 modeli: regresję logistyczną, drzewo decyzyjne, random forest, adaBoost oraz XGBoost
+
+### Regresja Logistyczna
+
+* Trening modeeli - podział zbioru
+
+* Tuning hiperparametrów - jakie paramtery, ich dobór, znaczenie parametrów
+
+* Wybór metryk - jakie metryki wybrano i dlaczego
+
+* Ocena jakości modelu - dane dosatrczone przez wykorzystane metryki
+
+### Drzewo decyzjyne
+
+* Trening modeeli - podział zbioru
+
+* Tuning hiperparametrów - jakie paramtery, ich dobór, znaczenie parametrów
+
+* Wybór metryk - jakie metryki wybrano i dlaczego
+
+* Ocena jakości modelu - dane dosatrczone przez wykorzystane metryki
+
+### RandomForest
+
+
+
+### AdaBoost
+
+
+
+### XGBoost
+
+
+
+## Wybrany model
+
+Istotność zmiennych oraz wnioski biznesowe
+
+
+## Podsumowanie
 
 Tu wskazanie na tabelkę, która porównuje wszystkie wykorzystane modele.
