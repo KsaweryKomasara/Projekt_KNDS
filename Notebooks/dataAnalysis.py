@@ -28,7 +28,7 @@ def startIQRAnalysis(data):
         # Wartości odstające
         outliers = data[(data[column] < lowerBound) | (data[column] > upperBound)]
         print(f"Number of outliers in {column}:\n", outliers.shape[0])
-
+        
 def correlationCoefficient(data):
 
     correlatioVector = []

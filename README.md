@@ -35,6 +35,14 @@ Zbiór analizowanych danych - Hotel_Reservations.csv -  można znaleźć w folde
 
 * Najważniejsze zmienne - avg_price_per_room / lead_time
 
+* Częściej odwływano rezerwacje, w których rezerwowane miesjce parkingowe
+
+* Częściej odwływano rezerwacje w sezonie wakacyjnym
+
+* Znacznie częściej odwoływano rezerwacje gdy w ramach rezerwacji nie było specjalnych życzeń
+
+* Im większy przedział czasu od rezerwacji do pobytu w hotelu tym wieksze prawdopodobieństwo odwołania rezerwacji
+
 * Wykres ze zobrazowaniem liczby wystąpień rezerwacji dla konkretnych cen pokojów hotelowych pokazał, że istnieje ponad 500 rezerwacji ze średnią ceną pokoju równą 0. Wynika to z dwóch czynników. Cena za pokój jest równa zero kiedy typ gościa hotelowego (zmienna market_segment_type) przyjumuje wartość "Complimetary", co oznacza, że rezerwacja nie jest typową rezerwacją i cena za pokój wynosi 0. Cena za pokój wyniesie 0 również gdy klient nie podał ani liczby nocy w tygodniu roboczym, ani liczby nocy weekendowych.
 
 ## Przetwarzanie danych
@@ -45,7 +53,7 @@ Zbiór analizowanych danych - Hotel_Reservations.csv -  można znaleźć w folde
 
 * Eliminacja cechy id rezerwacji - 'Booking_ID'
 
-* Eliminacja outlierów w procesie preprocessingu
+* Eliminacja outlierów poprzez wyliczenie IQR oraz winsoryzację (na cechach avg_price_per_room, lead_time, no_of_week_nights, no_of_weekend_nights)
 
 ## Trening i ewaluacja modeli
 
@@ -53,23 +61,37 @@ Wykorzystano 5 modeli: regresję logistyczną, drzewo decyzyjne, random forest, 
 
 ### Regresja Logistyczna
 
-* Trening modeeli - podział zbioru
+* Trening modeli - zbiór testowy stanowi 10 % całego zbioru danych
 
-* Tuning hiperparametrów - jakie paramtery, ich dobór, znaczenie parametrów
+* Tuning hiperparametrów - wykorzystanie GridSearchCV z solverami lbfgs / liblinear
 
-* Wybór metryk - jakie metryki wybrano i dlaczego
+* Wybór metryk
 
-* Ocena jakości modelu - dane dosatrczone przez wykorzystane metryki
+    * Confusion matrix
+    * ROC AUC
+
+* Ocena jakości modelu
+
+    * Benachmark 80 %
+    * Model 86 %
+    * Model po HPO 88 %
 
 ### Drzewo decyzjyne
 
-* Trening modeeli - podział zbioru
+* Trening modeli - zbiór testowy stanowi 10 % całego zbioru danych
 
-* Tuning hiperparametrów - jakie paramtery, ich dobór, znaczenie parametrów
+* Tuning hiperparametrów - wykorzystanie GridSearchCV z podziałąmi według gini i entropy
 
-* Wybór metryk - jakie metryki wybrano i dlaczego
+* Wybór metryk
 
-* Ocena jakości modelu - dane dosatrczone przez wykorzystane metryki
+    * Confusion matrix
+    * ROC AUC
+
+* Ocena jakości modelu
+
+    * Benachmark 86 %
+    * Model 84 % - overfitting
+    * Model po HPO 88 %
 
 ### RandomForest
 

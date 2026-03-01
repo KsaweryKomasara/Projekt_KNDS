@@ -1,10 +1,12 @@
 import pandas as pd
+import numpy as np
 # import category_encoders as ce
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, RobustScaler
+from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.metrics import mean_squared_error, r2_score
@@ -101,8 +103,16 @@ def setPipeline(X_train, X_test, num_features, cat_features):
 
     return data_pipeline
 
-import pandas as pd
-import numpy as np
+def winsorizeData(data, columnsToWinsorize):
+
+    for column in columnsToWinsorize:
+        Q1 = data[column].quantile(0.25)
+        Q3 = data[column].quantile(0.75)
+        IQR = Q3 - Q1
+        lowerBound = Q1 - 1.5 * IQR
+        upperBound = Q3 + 1.5 * IQR
+        data[column] = data[column].clip(lower=lowerBound, upper=upperBound)
+
 
 def create_features(df):
     print("Rozpoczynam Inżynierię Cech...")

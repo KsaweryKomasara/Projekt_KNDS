@@ -27,7 +27,7 @@ def conductHPO(X_train, y_train):
         'criterion': ['gini', 'entropy'],
         'max_depth': [None, 10, 20, 30],
         'min_samples_split': [2, 5, 10],
-        'min_samples_leaf': [1, 2, 4]
+        'min_samples_leaf': [1, 2, 4],
     }
 
     grid_search = GridSearchCV(estimator=DecisionTreeClassifier(), param_grid=param_grid, cv=5)
