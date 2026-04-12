@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 # import category_encoders as ce
 
+from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
 from sklearn.pipeline import Pipeline
@@ -29,13 +30,16 @@ def processData(data):
     
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=2/9, random_state=123, stratify=y_train)
 
-    data_pipeline = setPipeline(X_train, X_test, num_features, cat_features)
+    data_pipeline = setPipeline(X_train, y_train, num_features, cat_features)
 
-    features_names = (
+    all_names = (
         pd.Index(data_pipeline.named_steps['preprocessor'].get_feature_names_out())
         .str.replace('num__', "", regex=False)
         .str.replace('cat__', "", regex=False)
     )
+
+    ## Wybranie tych cech, które zostały wybrane przez Feature Selector
+    features_names = all_names[data_pipeline.named_steps['selector'].get_support()]
 
     X_train_processed = pd.DataFrame(data=data_pipeline.transform(X_train), columns = features_names)
     X_test_processed = pd.DataFrame(data=data_pipeline.transform(X_test), columns = features_names)
@@ -70,7 +74,7 @@ def splitData(data, columnName):
     return X_train, X_test, y_train, y_test, num_features, cat_features
 
 
-def setPipeline(X_train, X_test, num_features, cat_features):
+def setPipeline(X_train, y_train, num_features, cat_features):
     
     # Pipeline dla cech numerycznych
 
@@ -94,12 +98,13 @@ def setPipeline(X_train, X_test, num_features, cat_features):
     ])
 
     data_pipeline = Pipeline(steps=[
-        ('preprocessor', preprocessor)
+        ('preprocessor', preprocessor),
+        ('selector', SelectKBest(score_func=f_classif, k=20))
     ])
 
     # Dostawienie przetworzonych danych do danych treningowych
 
-    data_pipeline.fit(X_train)
+    data_pipeline.fit(X_train, y_train)
 
     return data_pipeline
 
@@ -112,6 +117,36 @@ def winsorizeData(data, columnsToWinsorize):
         lowerBound = Q1 - 1.5 * IQR
         upperBound = Q3 + 1.5 * IQR
         data[column] = data[column].clip(lower=lowerBound, upper=upperBound)
+
+def startFeatureEngineering(data):
+    # Dropnięcie niepotrzebnych kolumn, które nie są istotne dla modelu lub mogą wprowadzać szum
+    data = data.drop(columns=['Booking_ID', 'no_of_previous_bookings_not_canceled', 'arrival_date', 'arrival_year'])
+
+    # Grupowanie rzadkich kategorii w kolumnie 'room_type_reserved' do jednej kategorii 'Other'
+    room_types = ['Room_Type_1', 'Room_Type_4']
+    data['room_type_reserved'] = np.where(data['room_type_reserved'].isin(room_types), data['room_type_reserved'], 'Other')
+
+    # Grupowanie no_of_previous_cancellations do kategorii na has_no_previous_cancellations (0) i has_previous_cancellations (1)
+    data['has_previous_cancellations'] = np.where(data['no_of_previous_cancellations'] > 0, 1, 0)
+    data = data.drop(columns=['no_of_previous_cancellations'])
+
+    # Grupowanie zmiennej no_of_special_requests do kategorii 0, 1, 2, >2
+    data['no_of_special_requests'] = np.where(data['no_of_special_requests'] > 2, '>2', data['no_of_special_requests'].astype(str))
+
+    # Gupowanie number_of_children do kategorii 0, 1, 2, >2
+    data['no_of_children'] = np.where(data['no_of_children'] > 2, '>2', data['no_of_children'].astype(str))
+
+    # Grupowanie no_of_weekend_nights do kategorii 0, 1, 2, >2
+    data['no_of_weekend_nights'] = np.where(data['no_of_weekend_nights'] > 2, '>2', data['no_of_weekend_nights'].astype(str))
+
+    # Grupowanie no_of_week_nights do kategorii 0, 1, 2, 3, 4, 5, 6, 7, >7
+    data['no_of_week_nights'] = np.where(data['no_of_week_nights'] > 7, '>7', data['no_of_week_nights'].astype(str))
+
+    # Czyszczenie z outlierów zmiennych numerycznych ciągłych za pomocą winsoryzacji
+    columnsToWinsorize = ['lead_time', 'avg_price_per_room']
+    winsorizeData(data, columnsToWinsorize)
+
+    return data
 
 
 def create_features(df):
