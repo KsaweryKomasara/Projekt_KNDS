@@ -1,5 +1,7 @@
+from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
+import seaborn as sns
 # import category_encoders as ce
 
 from sklearn.feature_selection import SelectKBest, f_classif
@@ -45,8 +47,8 @@ def processData(data):
     X_test_processed = pd.DataFrame(data=data_pipeline.transform(X_test), columns = features_names)
     X_val_processed = pd.DataFrame(data=data_pipeline.transform(X_val), columns = features_names)
 
-    print("Processed training dataset: ") 
-    print(X_train_processed.head())
+    print ("Features selected by Feature Selector: ", features_names.tolist())
+
 
     return X_train_processed, X_test_processed, X_val_processed, y_train, y_test, y_val
 
@@ -99,7 +101,7 @@ def setPipeline(X_train, y_train, num_features, cat_features):
 
     data_pipeline = Pipeline(steps=[
         ('preprocessor', preprocessor),
-        ('selector', SelectKBest(score_func=f_classif, k=20))
+        ('selector', SelectKBest(score_func=f_classif, k=15))
     ])
 
     # Dostawienie przetworzonych danych do danych treningowych
@@ -130,9 +132,6 @@ def startFeatureEngineering(data):
     data['has_previous_cancellations'] = np.where(data['no_of_previous_cancellations'] > 0, 1, 0)
     data = data.drop(columns=['no_of_previous_cancellations'])
 
-    # Grupowanie zmiennej no_of_special_requests do kategorii 0, 1, 2, >2
-    data['no_of_special_requests'] = np.where(data['no_of_special_requests'] > 2, '>2', data['no_of_special_requests'].astype(str))
-
     # Gupowanie number_of_children do kategorii 0, 1, 2, >2
     data['no_of_children'] = np.where(data['no_of_children'] > 2, '>2', data['no_of_children'].astype(str))
 
@@ -145,6 +144,9 @@ def startFeatureEngineering(data):
     # Czyszczenie z outlierów zmiennych numerycznych ciągłych za pomocą winsoryzacji
     columnsToWinsorize = ['lead_time', 'avg_price_per_room']
     winsorizeData(data, columnsToWinsorize)
+
+    # Łączenie lead_time i avg_price_per_room w jedną cechę price_lead_time_ratio
+    data['price_lead_time_ratio'] = data['avg_price_per_room'] * (data['lead_time'])
 
     return data
 

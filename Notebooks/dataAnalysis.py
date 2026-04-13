@@ -76,9 +76,9 @@ def plotCounts(data, columns):
         ax.bar_label(ax.containers[0])
         if min_val > 0 and (max_val / min_val > 20):
             ax.set_yscale('log')
-            plt.title(f'Rozkład {column}')
+            plt.title(f'Logarithmic distribution of {column}')
         else:
-            plt.title(f'Rozkład {column}')
+            plt.title(f'Distribution of {column}')
         plt.xlabel(column)
         plt.ylabel('Frequency')
         plt.show()
@@ -152,7 +152,7 @@ def plotHeatmap(data): # Ta funkcja tworzy macierz korelacji dla zmiennych numer
     correlation_matrix = data[numeric_columns].corr()
     plt.figure(figsize=(12, 10))
     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
-    plt.title('Macierz korelacji')
+    plt.title('Correlation Matrix for Numerical Variables')
     plt.show()
 
 def plotComparisonWithTarget(data, var_type):
@@ -163,12 +163,23 @@ def plotComparisonWithTarget(data, var_type):
     if var_type == 'cat':
         categorical_columns = df.select_dtypes(include=['object', 'category']).columns
         for column in categorical_columns:
+            order = df[column].value_counts().index
+
             plt.figure(figsize=(12, 4))
             sns.set_style("darkgrid")
-            sns.countplot(data=df, x=column, hue='booking_status')
-            ax = sns.countplot(data=df, x=column, hue='booking_status')
+            sns.countplot(data=df, x=column, hue='booking_status', order=order)
+            ax = sns.countplot(data=df, x=column, hue='booking_status', order=order)
             ax.set_yscale('log')
-            plt.title(f'Percentage distribution of {column} by booking_status')
+            plt.title(f'Distribution of {column} by booking_status')
+            plt.xlabel(column)
+            plt.ylabel('Frequency')
+            plt.legend(title='booking_status', labels=['Not_Canceled', 'Canceled'])
+            plt.show()
+
+            percentage_data = pd.crosstab(index=df[column], columns=df['booking_status'], normalize='index') * 100
+            percentage_data = percentage_data.reindex(order)
+            percentage_data.plot(kind='bar', stacked=True, figsize=(12, 4))
+            plt.title(f'Stacked Bar Chart of {column} by booking_status')
             plt.xlabel(column)
             plt.ylabel('Percentage')
             plt.legend(title='booking_status', labels=['Not_Canceled', 'Canceled'])
@@ -182,6 +193,8 @@ def plotComparisonWithTarget(data, var_type):
         numeric_columns = numeric_columns.drop('no_of_previous_bookings_not_canceled', errors='ignore')
         numeric_columns = numeric_columns.drop('avg_price_per_room', errors='ignore')
 
+        numeric_columns = numeric_columns.drop('booking_status', errors='ignore')
+
         ## countploty w dwóch słupkach na każdą wartosć numeryczną
         for column in numeric_columns:
             plt.figure(figsize=(12, 4))
@@ -192,6 +205,15 @@ def plotComparisonWithTarget(data, var_type):
             plt.title(f'Count Plot of {column} by booking_status')
             plt.xlabel(column)
             plt.ylabel('Frequency')
+            plt.legend(title='booking_status', labels=['Not_Canceled', 'Canceled'])
+            plt.show()
+
+            percentage_data = pd.crosstab(index=df[column], columns=df['booking_status'], normalize='index') * 100
+            percentage_data = percentage_data.sort_index()
+            percentage_data.plot(kind='bar', stacked=True, figsize=(12, 4))
+            plt.title(f'Stacked Bar Chart of {column} by booking_status')
+            plt.xlabel(column)
+            plt.ylabel('Percentage')
             plt.legend(title='booking_status', labels=['Not_Canceled', 'Canceled'])
             plt.show()
 
@@ -225,7 +247,7 @@ def plotHeatmap(data):
     correlation_matrix = df[numeric_columns].corr(method='spearman')
     plt.figure(figsize=(12, 10))
     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
-    plt.title('Macierz korelacji dla zmiennych numerycznych')
+    plt.title('Correlation Matrix for Numerical Variables')
     plt.show()
 
 def plotCorrelationWithTarget(data):
@@ -236,5 +258,5 @@ def plotCorrelationWithTarget(data):
     correlation_matrix = df[numeric_columns].corr(method='spearman')
     plt.figure(figsize=(12, 10))
     sns.heatmap(correlation_matrix['booking_status'].to_frame(), annot=True, cmap='coolwarm', linewidths=0.5)
-    plt.title(f'Macierz korelacji zmiennych numerycznych ze zmienną celu: booking_status')
+    plt.title(f'Correlation Matrix for Numerical Variables with Target: booking_status')
     plt.show()

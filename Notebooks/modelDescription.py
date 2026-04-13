@@ -14,12 +14,11 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.dummy import DummyClassifier
 
 
-def modelBenchmark(model,X_test,y_test):
-    y_pred = model.predict(X_test)
+def modelBenchmark(y_test, y_pred):
     print(f"Accuracy of the model:")
-    print(classification_report(y_test,y_pred))
+    print(classification_report(y_test, y_pred))
 
-def FeaturesImportance(model,X_train,threshold=0.2):
+def FeaturesImportance(model, X_train, threshold=0.2):
     imp = model.feature_importances_
     forest_imp = pd.Series(imp, index=list(X_train.columns))
     std = np.std([tree.feature_importances_ for tree in model.estimators_], axis=0)
@@ -35,12 +34,11 @@ def FeaturesImportance(model,X_train,threshold=0.2):
     print(cv)
     return cv
 
-def confusionMatrix(model,X_test,y_test):
-    y_pred = model.predict(X_test)
-    cm = confusion_matrix(y_test,y_pred)
+def confusionMatrix(y_test, y_pred):
+    cm = confusion_matrix(y_test, y_pred)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm)
     disp.plot(cmap=plt.cm.Reds)
-    plt.title('Macierz pomyłek')
+    plt.title('Confusion Matrix')
     plt.show()
 
 def show_roc_auc(y_test, y_pred):
